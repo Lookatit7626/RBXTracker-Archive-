@@ -1,0 +1,30 @@
+{
+  "name": "Backend",
+  "version": "1.0.0",
+  "description": "A simple Node app built on fastify, instantly up and running. Built to be remixed on Glitch.com.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@fastify/formbody": "^7.4.0",
+    "@fastify/static": "^6.10.2",
+    "@fastify/view": "^8.0.0",
+    "body-parser": "^1.20.2",
+    "express": "^4.18.2",
+    "fastify": "^4.21.0",
+    "pg": "^8.10.0",
+    "handlebars": "^4.7.8",
+    "ping": "^0.4.4",
+    "@types/node": "^18.0.6",
+    "discord.js": "^14.7.1",
+    "axios": "^1.6.2",
+    "node-fetch": "^3.2.6",
+    "twit": "^2.2.11"
+  },
+  "engines": {
+    "node": ">=18.18.0 <19.0.0"
+  },
+  "license": "MIT",
+  "keywords": []
+}
