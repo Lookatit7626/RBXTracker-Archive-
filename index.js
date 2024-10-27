@@ -100,7 +100,7 @@ client.once(Events.ClientReady, async readyClient => {
                                         if (!YellowCode.includes(label)) {
                                             const embed = new EmbedBuilder()
                                                 .setColor('#f6ff00')
-                                                .setTitle(`<@&1300079303240712233> ${label} API is downgrading!`)
+                                                .setTitle(`${label} API is downgrading!`)
                                                 .setURL(url)
                                                 .setAuthor({ name: 'Status Bot' })
                                                 .addFields(
@@ -117,7 +117,7 @@ client.once(Events.ClientReady, async readyClient => {
                                         if (!GreenCode.includes(label)) {
                                             const embed = new EmbedBuilder()
                                                 .setColor('#00ff00')
-                                                .setTitle(`<@&1300079348379942922> ${label} API is up!`)
+                                                .setTitle(`${label} API is up!`)
                                                 .setURL(url)
                                                 .setAuthor({ name: 'Status Bot' })
                                                 .addFields(
@@ -135,7 +135,7 @@ client.once(Events.ClientReady, async readyClient => {
                                     if (!RedCode.includes(label)) {
                                         const embed = new EmbedBuilder()
                                             .setColor('#ff0000')
-                                            .setTitle(`<@&1300078712649285652> ${label} API is down!`)
+                                            .setTitle(`${label} API is down!`)
                                             .setURL(url)
                                             .setAuthor({ name: 'Status Bot' })
                                             .addFields(
