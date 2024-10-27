@@ -81,7 +81,7 @@ client.on(Events.MessageCreate, async (message) => {
                 if (AllowedReturnRequest.includes(statusCode)) {
                     statusCode = 200
                 }
-                Embed = Embed + `${label} Status : ${statusCode} : Response time : ${responseTime} ms\n`
+                Embed = Embed + `${label} API \n    ^->Status : ${statusCode} : Response time : ${responseTime} ms\n`
             });
             message.channel.send(Embed);
         }
