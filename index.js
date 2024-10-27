@@ -65,6 +65,138 @@ client.on(Events.MessageCreate, message => {
 	}
 });
 
+async function Loop() {
+	if (Array.isArray(RobloxAPIListToCall) && RobloxAPIListToCall.length > 0) {
+		RobloxAPIListToCall.forEach(([label, url]) => {
+			const responseTimer = Date.now();
+			https.get(url, (response) => {
+				const responseTime = Date.now() - responseTimer;
+
+				if (AllowedReturnRequest.includes(response.statusCode)) {
+					if (responseTime > 2000) {
+						if (YellowCode.includes(label)) {} else {
+							const embed = new EmbedBuilder()
+								.setColor('#f6ff00') // Yellow for lagging
+								.setTitle(`${label} API is downgrading!`)
+								.setURL(url)
+								.setAuthor({ name: 'Status Bot' })
+								.addFields(
+									{ name: 'Response Code', value: "200", inline: true },
+									{ name: 'Response Time', value: `${responseTime} ms`, inline: true }
+								)
+								.setFooter({ text: 'Status Check' })
+								.setTimestamp();
+
+							channel.send({ embeds: [embed] });
+							
+							// Manage status codes
+							YellowCode.push(label);
+
+							const index = RedCode.indexOf(label);
+
+							if (index !== -1) {
+								RedCode.splice(index, 1); // Remove 1 element at the found index
+							}
+							const index2 = GreenCode.indexOf(label);
+
+							if (index2 !== -1) {
+								GreenCode.splice(index2, 1); // Remove 1 element at the found index
+							}
+							console.log(`[${label}] Request successful, Response ${response.statusCode}, Response time ${responseTime} ms`);
+						}
+					} else {
+						if (GreenCode.includes(label)) {} else {
+							const embed = new EmbedBuilder()
+								.setColor('#00ff00') // Green for up
+								.setTitle(`${label} API is up!`)
+								.setURL(url)
+								.setAuthor({ name: 'Status Bot' })
+								.addFields(
+									{ name: 'Response Code', value: "200", inline: true },
+									{ name: 'Response Time', value: `${responseTime} ms`, inline: true }
+								)
+								.setFooter({ text: 'Status Check' })
+								.setTimestamp();
+
+							channel.send({ embeds: [embed] });
+							
+							// Manage status codes
+							GreenCode.push(label);
+
+							const index = RedCode.indexOf(label);
+
+							if (index !== -1) {
+								RedCode.splice(index, 1); // Remove 1 element at the found index
+							}
+							const index2 = YellowCode.indexOf(label);
+
+							if (index2 !== -1) {
+								YellowCode.splice(index2, 1); // Remove 1 element at the found index
+							}
+							console.log(`[${label}] Request successful, Response ${response.statusCode}, Response time ${responseTime} ms`);
+						}
+					}
+				} else {
+					if (RedCode.includes(label)) {} else {
+
+						let CauseOfIssue = "Unknown"
+						switch(response.statusCode) {
+							case 500:
+								CauseOfIssue = "Internal server error"
+							  break;
+							case 503:
+								CauseOfIssue = "Service unavailable"
+								break
+							case 502:
+								CauseOfIssue = "Bad Gateway"
+							  break;
+							case 507:
+								CauseOfIssue = "Insuffient Storage"
+								break
+							default:
+							  
+						}
+						const embed = new EmbedBuilder()
+							.setColor('#ff0000') // Red for down
+							.setTitle(`${label} API is down!`)
+							.setURL(url)
+							.setAuthor({ name: 'Status Bot' })
+							.addFields(
+								{ name: 'Response Code', value: response.statusCode.toString(), inline: true },
+								{ name: 'Response Time', value: `${responseTime} ms`, inline: true },
+								{ name: 'Response : ', value: `${CauseOfIssue}`, inline: true }
+							)
+							.setFooter({ text: 'Status Check' })
+							.setTimestamp();
+
+						channel.send({ embeds: [embed] });
+						
+						// Manage status codes
+						RedCode.push(label);
+
+						const index = GreenCode.indexOf(label);
+
+						if (index !== -1) {
+							GreenCode.splice(index, 1); // Remove 1 element at the found index
+						}
+							const index2 = YellowCode.indexOf(label);
+
+						if (index2 !== -1) {
+							YellowCode.splice(index2, 1); // Remove 1 element at the found index
+						}
+
+						console.log(`[${label}] Request unsuccessful, Response ${response.statusCode}, Response time ${responseTime} ms`);
+					}
+				}
+			}).on('error', (error) => {
+				console.error(`${label} Error: ${error.message}`);
+			});
+		});
+	} else {
+		console.error('Roblox API list is not defined or empty.');
+	}
+}
+
 client.once(Events.ClientReady, async readyClient => {
     console.log(`Ready! Logged in as: ${readyClient.user.tag}`);
     const GUILD_ID = '1158555888609677373';
@@ -79,139 +211,13 @@ client.once(Events.ClientReady, async readyClient => {
                 .then(() => console.log('Message sent!'))
                 .catch(console.error);
 
+			
+
 			intervalId = setInterval(() => {
 				if (isActive === false) {
-					clearInterval(intervalId);
+					Loop()
 				}
-                if (Array.isArray(RobloxAPIListToCall) && RobloxAPIListToCall.length > 0) {
-                    RobloxAPIListToCall.forEach(([label, url]) => {
-                        const responseTimer = Date.now();
-                        https.get(url, (response) => {
-                            const responseTime = Date.now() - responseTimer;
-
-                            if (AllowedReturnRequest.includes(response.statusCode)) {
-								if (responseTime > 1000) {
-									if (YellowCode.includes(label)) {} else {
-										const embed = new EmbedBuilder()
-											.setColor('#00ff00') // Green for up
-											.setTitle(`${label} API is downgrading!`)
-											.setURL(url)
-											.setAuthor({ name: 'Status Bot' })
-											.addFields(
-												{ name: 'Response Code', value: "200", inline: true },
-												{ name: 'Response Time', value: `${responseTime} ms`, inline: true }
-											)
-											.setFooter({ text: 'Status Check' })
-											.setTimestamp();
-
-										channel.send({ embeds: [embed] });
-										
-										// Manage status codes
-										YellowCode.push(label);
-
-										const index = RedCode.indexOf(label);
-
-										if (index !== -1) {
-											RedCode.splice(index, 1); // Remove 1 element at the found index
-										}
-										const index2 = GreenCode.indexOf(label);
-
-										if (index2 !== -1) {
-											GreenCode.splice(index2, 1); // Remove 1 element at the found index
-										}
-										console.log(`[${label}] Request successful, Response ${response.statusCode}, Response time ${responseTime} ms`);
-									}
-								} else {
-									if (GreenCode.includes(label)) {} else {
-										const embed = new EmbedBuilder()
-											.setColor('#00ff00') // Green for up
-											.setTitle(`${label} API is up!`)
-											.setURL(url)
-											.setAuthor({ name: 'Status Bot' })
-											.addFields(
-												{ name: 'Response Code', value: "200", inline: true },
-												{ name: 'Response Time', value: `${responseTime} ms`, inline: true }
-											)
-											.setFooter({ text: 'Status Check' })
-											.setTimestamp();
-
-										channel.send({ embeds: [embed] });
-										
-										// Manage status codes
-										GreenCode.push(label);
-
-										const index = RedCode.indexOf(label);
-
-										if (index !== -1) {
-											RedCode.splice(index, 1); // Remove 1 element at the found index
-										}
-										const index2 = YellowCode.indexOf(label);
-
-										if (index2 !== -1) {
-											YellowCode.splice(index2, 1); // Remove 1 element at the found index
-										}
-										console.log(`[${label}] Request successful, Response ${response.statusCode}, Response time ${responseTime} ms`);
-									}
-								}
-							} else {
-								if (RedCode.includes(label)) {} else {
-
-									let CauseOfIssue = "Unknown"
-									switch(response.statusCode) {
-										case 500:
-											CauseOfIssue = "Internal server error"
-										  break;
-										case 503:
-											CauseOfIssue = "Service unavailable"
-											break
-										case 502:
-											CauseOfIssue = "Bad Gateway"
-										  break;
-										case 507:
-											CauseOfIssue = "Insuffient Storage"
-											break
-										default:
-										  
-									}
-									const embed = new EmbedBuilder()
-										.setColor('#ff0000') // Red for down
-										.setTitle(`${label} API is down!`)
-										.setURL(url)
-										.setAuthor({ name: 'Status Bot' })
-										.addFields(
-											{ name: 'Response Code', value: response.statusCode.toString(), inline: true },
-											{ name: 'Response Time', value: `${responseTime} ms`, inline: true },
-											{ name: 'Response : ', value: `${CauseOfIssue}`, inline: true }
-										)
-										.setFooter({ text: 'Status Check' })
-										.setTimestamp();
-
-									channel.send({ embeds: [embed] });
-									
-									// Manage status codes
-									RedCode.push(label);
-
-									const index = GreenCode.indexOf(label);
-
-									if (index !== -1) {
-										GreenCode.splice(index, 1); // Remove 1 element at the found index
-									}
-										const index2 = YellowCode.indexOf(label);
-
-									if (index2 !== -1) {
-										YellowCode.splice(index2, 1); // Remove 1 element at the found index
-									}
-
-									console.log(`[${label}] Request unsuccessful, Response ${response.statusCode}, Response time ${responseTime} ms`);
-								}
-							}
-                        }).on('error', (error) => {
-                            console.error(`${label} Error: ${error.message}`);
-                        });
-                    });
-                } else {
-                    console.error('Roblox API list is not defined or empty.');
-                }
+                
             }, 30000); // 30000 ms = 30 seconds
         } else {
             console.log('Channel not found!');
