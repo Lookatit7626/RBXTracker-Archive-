@@ -78,6 +78,9 @@ client.on(Events.MessageCreate, async (message) => {
             const results = await Promise.all(requests);
             let Embed = "STATUS :\n"
             results.forEach(({url, label, statusCode, responseTime, error }) => {
+                if (AllowedReturnRequest.includes(statusCode)) {
+                    statusCode = 200
+                }
                 Embed = Embed + `${label} Status : ${statusCode} : Response time : ${responseTime} ms\n`
             });
             message.channel.send(Embed);
