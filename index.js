@@ -59,48 +59,69 @@ client.once(Events.ClientReady, async readyClient => {
                             const responseTime = Date.now() - responseTimer;
 
                             if (AllowedReturnRequest.includes(response.statusCode)) {
-                                const embed = new EmbedBuilder()
-                                    .setColor('#00ff00') // Green for up
-                                    .setTitle(`${label} is up!`)
-                                    .setURL(url)
-                                    .setAuthor({ name: 'Status Bot' })
-                                    .addFields(
-                                        { name: 'Response Code', value: response.statusCode.toString(), inline: true },
-                                        { name: 'Response Time', value: `${responseTime} ms`, inline: true }
-                                    )
-                                    .setFooter({ text: 'Status Check' })
-                                    .setTimestamp();
+								if (GreenCode.indexOf(response.statusCode) >= 0) {} else {
+									const embed = new EmbedBuilder()
+										.setColor('#00ff00') // Green for up
+										.setTitle(`${label} is up!`)
+										.setURL(url)
+										.setAuthor({ name: 'Status Bot' })
+										.addFields(
+											{ name: 'Response Code', value: "200", inline: true },
+											{ name: 'Response Time', value: `${responseTime} ms`, inline: true }
+										)
+										.setFooter({ text: 'Status Check' })
+										.setTimestamp();
 
-                                channel.send({ embeds: [embed] });
-                                
-                                // Manage status codes
-                                GreenCode.add(label);
-                                RedCode.delete(label);
-                                YellowCode.delete(label);
+									channel.send({ embeds: [embed] });
+									
+									// Manage status codes
+									GreenCode.push(label);
 
-                                console.log(`[${label}] Request successful, Response ${response.statusCode}, Response time ${responseTime} ms`);
-                            } else {
-                                const embed = new EmbedBuilder()
-                                    .setColor('#ff0000') // Red for down
-                                    .setTitle(`${label} is down!`)
-                                    .setURL(url)
-                                    .setAuthor({ name: 'Status Bot' })
-                                    .addFields(
-                                        { name: 'Response Code', value: response.statusCode.toString(), inline: true },
-                                        { name: 'Response Time', value: `${responseTime} ms`, inline: true }
-                                    )
-                                    .setFooter({ text: 'Status Check' })
-                                    .setTimestamp();
+									const index = RedCode.indexOf(label);
 
-                                channel.send({ embeds: [embed] });
-                                
-                                // Manage status codes
-                                RedCode.add(label);
-                                GreenCode.delete(label);
-                                YellowCode.delete(label);
+									if (index !== -1) {
+										RedCode.splice(index, 1); // Remove 1 element at the found index
+									}
+									const index2 = YellowCode.indexOf(label);
 
-                                console.log(`[${label}] Request unsuccessful, Response ${response.statusCode}, Response time ${responseTime} ms`);
-                            }
+									if (index2 !== -1) {
+										YellowCode.splice(index2, 1); // Remove 1 element at the found index
+									}
+									console.log(`[${label}] Request successful, Response ${response.statusCode}, Response time ${responseTime} ms`);
+								}
+							} else {
+								if (RedCode.indexOf(response.statusCode) >= 0) {} else {
+									const embed = new EmbedBuilder()
+										.setColor('#ff0000') // Red for down
+										.setTitle(`${label} is down!`)
+										.setURL(url)
+										.setAuthor({ name: 'Status Bot' })
+										.addFields(
+											{ name: 'Response Code', value: response.statusCode.toString(), inline: true },
+											{ name: 'Response Time', value: `${responseTime} ms`, inline: true }
+										)
+										.setFooter({ text: 'Status Check' })
+										.setTimestamp();
+
+									channel.send({ embeds: [embed] });
+									
+									// Manage status codes
+									RedCode.push(label);
+
+									const index = GreenCode.indexOf(label);
+
+									if (index !== -1) {
+										GreenCode.splice(index, 1); // Remove 1 element at the found index
+									}
+										const index2 = YellowCode.indexOf(label);
+
+									if (index2 !== -1) {
+										YellowCode.splice(index2, 1); // Remove 1 element at the found index
+									}
+
+									console.log(`[${label}] Request unsuccessful, Response ${response.statusCode}, Response time ${responseTime} ms`);
+								}
+							}
                         }).on('error', (error) => {
                             console.error(`${label} Error: ${error.message}`);
                         });
