@@ -62,7 +62,7 @@ client.on(Events.MessageCreate, async (message) => {
             isActive = false; // Turn off the bot
             message.channel.send('Bot has been turned off.'); 
         } else if (message.content === '!status') {
-            message.channel.send('Getting status...');
+            message.channel.send('Pinging ROBLOX servers...');
             const requests = RobloxAPIListToCall.map(([label, url]) => 
                 new Promise((resolve) => {
                     const responseTimer = Date.now();
