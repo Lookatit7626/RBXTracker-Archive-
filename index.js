@@ -1,5 +1,5 @@
 // Require the necessary discord.js classes
-const { Client, Events, GatewayIntentBits } = require('discord.js');
+const { Client, Events, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const https = require('https');
 const port = 8080;
 
@@ -35,12 +35,16 @@ const AllowedReturnRequest = [
     405,
 ]
 
+var GreenCode = []
+var YellowCode = []
+var RedCode = []
+
 
 const token  = process.env['Token'];
 
 
 // Create a new client instance
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages] });
 
 // When the client is ready, run this code (only once).
 // The distinction between `client: Client<boolean>` and `readyClient: Client<true>` is important for TypeScript developers.
@@ -55,9 +59,104 @@ client.once(Events.ClientReady, readyClient => {
     if (guild) {
         const channel = guild.channels.cache.get(CHANNEL_ID);
         if (channel) {
-            channel.send('Hello, this is a message from my bot!')
+            channel.send('Restarted!')
                 .then(() => console.log('Message sent!'))
                 .catch(console.error);
+
+
+			setInterval(() => {
+				if (Array.isArray(HTTPS) && HTTPS.length > 0) {
+					HTTPS.forEach(([label, url]) => {
+						const responseTimer = Date.now();
+						https.get(url, (response) => {
+							if (AllowedReturnRequest.indexOf(response.statusCode) >= 0) {
+								const responseTime = Date.now() - responseTimer;
+
+								if(GreenCode.indexOf(label) < 0) {
+									const embed = new EmbedBuilder()
+									.setColor('#0099ff') // Set the color of the embed
+									.setTitle(`${label} is up!`)
+									.setURL(url) // URL for the title
+									.setAuthor({ name: 'Status Bot'}) // Author
+									//.setDescription('A Service is down!') // Description
+									.addFields(
+										{ name: 'Response Code', value: response.statusCode, inline: true },
+										{ name: 'Response Time', value: responseTime, inline: true }
+									)
+									.setFooter({ text: 'Footer text here' }) // Footer
+									.setTimestamp(); // Add a timestamp
+
+									channel.send({ embeds: [embed] })
+
+									const index1 = RedCode.indexOf(label);
+
+									// If "green" is found in the array
+									if (index1 !== -1) {
+									  // Remove "green" using splice
+									  RedCode.splice(index1, 1);
+									}
+
+									const index2 = YellowCode.indexOf(label);
+
+									// If "yellow" is found in the array
+									if (index2 !== -1) {
+									// Remove "Yellow" using splice
+									YellowCode.splice(index2, 1);
+									}
+
+									GreenCode.push(label);
+								}
+								console.log(`[${label}] Request successful, Response 200, Response time ${responseTime} ms`)
+							} else {
+
+								if(RedCode.indexOf(label) < 0) {
+									const embed = new EmbedBuilder()
+									.setColor('#0099ff') // Set the color of the embed
+									.setTitle(`${label} is down!`)
+									.setURL(url) // URL for the title
+									.setAuthor({ name: 'Status Bot'}) // Author
+									//.setDescription('A Service is down!') // Description
+									.addFields(
+										{ name: 'Response Code', value: response.statusCode, inline: true },
+										{ name: 'Response Time', value: responseTime, inline: true }
+									)
+									.setFooter({ text: 'Footer text here' }) // Footer
+									.setTimestamp(); // Add a timestamp
+
+									channel.send({ embeds: [embed] })
+
+									const index1 = GreenCode.indexOf(label);
+
+									// If "green" is found in the array
+									if (index1 !== -1) {
+									  // Remove "green" using splice
+									  GreenCode.splice(index1, 1);
+									}
+
+									const index2 = YellowCode.indexOf(label);
+
+									// If "yellow" is found in the array
+									if (index2 !== -1) {
+									// Remove "Yellow" using splice
+									YellowCode.splice(index2, 1);
+									}
+
+									RedCode.push(label);
+								}
+
+								console.log(`[${label}] Request unsuccessful, Response ${response.statusCode}, Response time ${responseTime}`)
+							}
+				
+						}).on('error', (error) => {
+							console.error(`${label} Error: ${error.message}`);
+						});
+					});
+				} else {
+					console.error('HTTPS array is not defined or empty.');
+				}
+			}, 30000); // 30000 ms = 30 seconds
+
+
         } else {
             console.log('Channel not found!');
         }
