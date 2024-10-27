@@ -53,7 +53,7 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBit
 const allowedUserIds = ['874574233513111573', '743455903797215293'];
 let isActive = true;
 
-client.on(Events.MessageCreate, message => {
+client.on(Events.MessageCreate, async (message) => {
     if (message.author.bot) return; // Ignore bot messages
 
     // Command to toggle the bot state
@@ -61,9 +61,30 @@ client.on(Events.MessageCreate, message => {
         if (message.content === '!kill') {
             isActive = false; // Turn off the bot
             message.channel.send('Bot has been turned off.'); 
+        } else if (message.content === '!status') {
+            message.channel.send('Getting status...');
+            const requests = RobloxAPIListToCall.map(([label, url]) => 
+                new Promise((resolve) => {
+                    const responseTimer = Date.now();
+                    https.get(url, (response) => {
+                        const responseTime = Date.now() - responseTimer;
+                        resolve({ label, url, statusCode: response.statusCode, responseTime });
+                    }).on('error', (error) => {
+                        resolve({ label, url, statusCode: null, error: error.message });
+                    });
+                })
+            );						
+
+            const results = await Promise.all(requests);
+            let Embed = "STATUS :\n"
+            results.forEach(({url, label, statusCode, responseTime, error }) => {
+                Embed = Embed + `${label} Status : ${statusCode} : Response time : ${responseTime} ms\n`
+            });
+            message.channel.send(Embed);
         }
     }
 });
+
 
 client.once(Events.ClientReady, async readyClient => {
     console.log(`Ready! Logged in as: ${readyClient.user.tag}`);
