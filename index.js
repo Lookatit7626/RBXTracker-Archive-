@@ -1,7 +1,6 @@
 // Require the necessary discord.js classes
 const { Client, Events, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const https = require('https');
-const port = 8080;
 
 const RobloxAPIListToCall = [
     ["Games", "https://games.roblox.com/v2/users/1/games"],
@@ -16,42 +15,31 @@ const RobloxAPIListToCall = [
     ["Account Information", "https://accountinformation.roblox.com/v1/metadata"],
     ["Chat", "https://chat.roblox.com/v2/metadata"],
     ["Voice Chat", "https://voice.roblox.com/"],
-    ["Badge","https://apis.roblox.com/legacy-badges"],
+    ["Badge", "https://apis.roblox.com/legacy-badges"],
     ["Client Information", "https://clientsettings.roblox.com/v2/user-channel"],
     ["Economics", "https://economy.roblox.com/v1/user/currency"],
     ["Game Join", "https://gamejoin.roblox.com/v1/metadata"],
     ["Avatar", "https://avatar.roblox.com/v1/avatar/metadata"],
     ["Catalog", "https://catalog.roblox.com//v1/users/1/bundles"],
     ["Game Internationalization", "https://gameinternationalization.roblox.com/v2/supported-languages/games/4924922222"],
-    ["Presense (User)", "https://presence.roblox.com/v1/presence/users"],
-    ["Trade","https://trades.roblox.com/v1/trades/metadata"],
+    ["Presence (User)", "https://presence.roblox.com/v1/presence/users"],
+    ["Trade", "https://trades.roblox.com/v1/trades/metadata"],
 ];
 
-const AllowedReturnRequest = [
-    200,
-    404,
-    429,
-    401,
-    405,
-]
+const AllowedReturnRequest = [200, 404, 429, 401, 405];
 
-var GreenCode = []
-var YellowCode = []
-var RedCode = []
+const GreenCode = new Set();
+const YellowCode = new Set();
+const RedCode = new Set();
 
-
-const token  = process.env['Token'];
-
+const token = process.env['Token'];
 
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages] });
 
-// When the client is ready, run this code (only once).
-// The distinction between `client: Client<boolean>` and `readyClient: Client<true>` is important for TypeScript developers.
-// It makes some properties non-nullable.
-client.once(Events.ClientReady, readyClient => {
-	console.log(`Ready! Logged in : ${readyClient.user.tag}`);
-	const GUILD_ID = '1158555888609677373';
+client.once(Events.ClientReady, async readyClient => {
+    console.log(`Ready! Logged in as: ${readyClient.user.tag}`);
+    const GUILD_ID = '1158555888609677373';
     const CHANNEL_ID = '1299895390744870972';
 
     // Find the channel and send a message
@@ -63,100 +51,64 @@ client.once(Events.ClientReady, readyClient => {
                 .then(() => console.log('Message sent!'))
                 .catch(console.error);
 
+            setInterval(() => {
+                if (Array.isArray(RobloxAPIListToCall) && RobloxAPIListToCall.length > 0) {
+                    RobloxAPIListToCall.forEach(([label, url]) => {
+                        const responseTimer = Date.now();
+                        https.get(url, (response) => {
+                            const responseTime = Date.now() - responseTimer;
 
-			setInterval(() => {
-				if (Array.isArray(RobloxAPIListToCall) && RobloxAPIListToCall.length > 0) {
-					RobloxAPIListToCall.forEach(([label, url]) => {
-						const responseTimer = Date.now();
-						https.get(url, (response) => {
-							if (AllowedReturnRequest.indexOf(response.statusCode) >= 0) {
-								const responseTime = Date.now() - responseTimer;
+                            if (AllowedReturnRequest.includes(response.statusCode)) {
+                                const embed = new EmbedBuilder()
+                                    .setColor('#00ff00') // Green for up
+                                    .setTitle(`${label} is up!`)
+                                    .setURL(url)
+                                    .setAuthor({ name: 'Status Bot' })
+                                    .addFields(
+                                        { name: 'Response Code', value: response.statusCode.toString(), inline: true },
+                                        { name: 'Response Time', value: `${responseTime} ms`, inline: true }
+                                    )
+                                    .setFooter({ text: 'Status Check' })
+                                    .setTimestamp();
 
-								if(GreenCode.indexOf(label) < 0) {
-									const embed = new EmbedBuilder()
-									.setColor('#0099ff') // Set the color of the embed
-									.setTitle(`${label} is up!`)
-									.setURL(url) // URL for the title
-									.setAuthor({ name: 'Status Bot'}) // Author
-									//.setDescription('A Service is down!') // Description
-									.addFields(
-										{ name: 'Response Code', value: response.statusCode, inline: true },
-										{ name: 'Response Time', value: responseTime, inline: true }
-									)
-									.setFooter({ text: 'Footer text here' }) // Footer
-									.setTimestamp(); // Add a timestamp
+                                channel.send({ embeds: [embed] });
+                                
+                                // Manage status codes
+                                GreenCode.add(label);
+                                RedCode.delete(label);
+                                YellowCode.delete(label);
 
-									channel.send({ embeds: [embed] })
+                                console.log(`[${label}] Request successful, Response ${response.statusCode}, Response time ${responseTime} ms`);
+                            } else {
+                                const embed = new EmbedBuilder()
+                                    .setColor('#ff0000') // Red for down
+                                    .setTitle(`${label} is down!`)
+                                    .setURL(url)
+                                    .setAuthor({ name: 'Status Bot' })
+                                    .addFields(
+                                        { name: 'Response Code', value: response.statusCode.toString(), inline: true },
+                                        { name: 'Response Time', value: `${responseTime} ms`, inline: true }
+                                    )
+                                    .setFooter({ text: 'Status Check' })
+                                    .setTimestamp();
 
-									const index1 = RedCode.indexOf(label);
+                                channel.send({ embeds: [embed] });
+                                
+                                // Manage status codes
+                                RedCode.add(label);
+                                GreenCode.delete(label);
+                                YellowCode.delete(label);
 
-									// If "green" is found in the array
-									if (index1 !== -1) {
-									  // Remove "green" using splice
-									  RedCode.splice(index1, 1);
-									}
-
-									const index2 = YellowCode.indexOf(label);
-
-									// If "yellow" is found in the array
-									if (index2 !== -1) {
-									// Remove "Yellow" using splice
-									YellowCode.splice(index2, 1);
-									}
-
-									GreenCode.push(label);
-								}
-								console.log(`[${label}] Request successful, Response 200, Response time ${responseTime} ms`)
-							} else {
-
-								if(RedCode.indexOf(label) < 0) {
-									const embed = new EmbedBuilder()
-									.setColor('#0099ff') // Set the color of the embed
-									.setTitle(`${label} is down!`)
-									.setURL(url) // URL for the title
-									.setAuthor({ name: 'Status Bot'}) // Author
-									//.setDescription('A Service is down!') // Description
-									.addFields(
-										{ name: 'Response Code', value: response.statusCode, inline: true },
-										{ name: 'Response Time', value: responseTime, inline: true }
-									)
-									.setFooter({ text: 'Footer text here' }) // Footer
-									.setTimestamp(); // Add a timestamp
-
-									channel.send({ embeds: [embed] })
-
-									const index1 = GreenCode.indexOf(label);
-
-									// If "green" is found in the array
-									if (index1 !== -1) {
-									  // Remove "green" using splice
-									  GreenCode.splice(index1, 1);
-									}
-
-									const index2 = YellowCode.indexOf(label);
-
-									// If "yellow" is found in the array
-									if (index2 !== -1) {
-									// Remove "Yellow" using splice
-									YellowCode.splice(index2, 1);
-									}
-
-									RedCode.push(label);
-								}
-
-								console.log(`[${label}] Request unsuccessful, Response ${response.statusCode}, Response time ${responseTime}`)
-							}
-				
-						}).on('error', (error) => {
-							console.error(`${label} Error: ${error.message}`);
-						});
-					});
-				} else {
-					console.error('HTTPS array is not defined or empty.');
-				}
-			}, 30000); // 30000 ms = 30 seconds
-
-
+                                console.log(`[${label}] Request unsuccessful, Response ${response.statusCode}, Response time ${responseTime} ms`);
+                            }
+                        }).on('error', (error) => {
+                            console.error(`${label} Error: ${error.message}`);
+                        });
+                    });
+                } else {
+                    console.error('Roblox API list is not defined or empty.');
+                }
+            }, 30000); // 30000 ms = 30 seconds
         } else {
             console.log('Channel not found!');
         }
