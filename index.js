@@ -76,7 +76,7 @@ client.on(Events.MessageCreate, async (message) => {
             );						
 
             const results = await Promise.all(requests);
-            let Embed = "STATUS :\n"
+            let Embed = "------ROBLOX STATUS------\n"
             results.forEach(({url, label, statusCode, responseTime, error }) => {
                 if (AllowedReturnRequest.includes(statusCode)) {
                     statusCode = 200
