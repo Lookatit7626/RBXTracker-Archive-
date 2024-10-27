@@ -81,7 +81,7 @@ client.once(Events.ClientReady, async readyClient => {
 								if (GreenCode.includes(response.statusCode)) {} else {
 									const embed = new EmbedBuilder()
 										.setColor('#00ff00') // Green for up
-										.setTitle(`${label} is up!`)
+										.setTitle(`${label} API is up!`)
 										.setURL(url)
 										.setAuthor({ name: 'Status Bot' })
 										.addFields(
@@ -112,7 +112,7 @@ client.once(Events.ClientReady, async readyClient => {
 								if (RedCode.includes(response.statusCode)) {} else {
 									const embed = new EmbedBuilder()
 										.setColor('#ff0000') // Red for down
-										.setTitle(`${label} is down!`)
+										.setTitle(`${label} API is down!`)
 										.setURL(url)
 										.setAuthor({ name: 'Status Bot' })
 										.addFields(
