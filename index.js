@@ -143,6 +143,24 @@ client.once(Events.ClientReady, async readyClient => {
 								}
 							} else {
 								if (RedCode.includes(label)) {} else {
+
+									let CauseOfIssue = "Unknown"
+									switch(response.statusCode) {
+										case 500:
+											CauseOfIssue = "Internal server error"
+										  break;
+										case 503:
+											CauseOfIssue = "Service unavailable"
+											break
+										case 502:
+											CauseOfIssue = "Bad Gateway"
+										  break;
+										case 507:
+											CauseOfIssue = "Insuffient Storage"
+											break
+										default:
+										  
+									}
 									const embed = new EmbedBuilder()
 										.setColor('#ff0000') // Red for down
 										.setTitle(`${label} API is down!`)
@@ -150,7 +168,8 @@ client.once(Events.ClientReady, async readyClient => {
 										.setAuthor({ name: 'Status Bot' })
 										.addFields(
 											{ name: 'Response Code', value: response.statusCode.toString(), inline: true },
-											{ name: 'Response Time', value: `${responseTime} ms`, inline: true }
+											{ name: 'Response Time', value: `${responseTime} ms`, inline: true },
+											{ name: 'Response : ', value: `${CauseOfIssue}`, inline: true }
 										)
 										.setFooter({ text: 'Status Check' })
 										.setTimestamp();
