@@ -104,7 +104,7 @@ client.once(Events.ClientReady, async readyClient => {
                                                 .setURL(url)
                                                 .setAuthor({ name: 'Status Bot' })
                                                 .addFields(
-                                                    { name: 'Response Code', value: statusCode.toString(), inline: true },
+                                                    { name: 'Response Code', value: "200", inline: true },
                                                     { name: 'Response Time', value: `${responseTime} ms`, inline: true }
                                                 )
                                                 .setFooter({ text: 'Status Check' })
@@ -121,7 +121,7 @@ client.once(Events.ClientReady, async readyClient => {
                                                 .setURL(url)
                                                 .setAuthor({ name: 'Status Bot' })
                                                 .addFields(
-                                                    { name: 'Response Code', value: statusCode.toString(), inline: true },
+                                                    { name: 'Response Code', value: "200", inline: true },
                                                     { name: 'Response Time', value: `${responseTime} ms`, inline: true }
                                                 )
                                                 .setFooter({ text: 'Status Check' })
