@@ -28,9 +28,9 @@ const RobloxAPIListToCall = [
 
 const AllowedReturnRequest = [200, 404, 429, 401, 405];
 
-const GreenCode = new Set();
-const YellowCode = new Set();
-const RedCode = new Set();
+const GreenCode = [];
+const YellowCode = [];
+const RedCode = [];
 
 const token = process.env['Token'];
 
