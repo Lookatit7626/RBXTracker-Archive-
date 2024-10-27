@@ -37,10 +37,26 @@ const token = process.env['Token'];
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages] });
 
+const allowedUserIds = ['874574233513111573', '743455903797215293'];
+let isActive = true;
+let intervalId;
+
+client.on(Events.MessageCreate, message => {
+    if (message.author.bot) return; // Ignore bot messages
+
+    // Command to toggle the bot state
+	if (allowedUserIds.includes(message.author.id)) {
+		if (message.content === '!kill') {
+			isActive = false; // Turn off the bot
+			message.channel.send('Bot has been turned off.'); 
+		}
+	}
+});
+
 client.once(Events.ClientReady, async readyClient => {
     console.log(`Ready! Logged in as: ${readyClient.user.tag}`);
     const GUILD_ID = '1158555888609677373';
-    const CHANNEL_ID = '1299895390744870972';
+    const CHANNEL_ID = '1299913259457187852';
 
     // Find the channel and send a message
     const guild = client.guilds.cache.get(GUILD_ID);
@@ -51,7 +67,10 @@ client.once(Events.ClientReady, async readyClient => {
                 .then(() => console.log('Message sent!'))
                 .catch(console.error);
 
-            setInterval(() => {
+			intervalId = setInterval(() => {
+				if (isActive === false) {
+					clearInterval(intervalId);
+				}
                 if (Array.isArray(RobloxAPIListToCall) && RobloxAPIListToCall.length > 0) {
                     RobloxAPIListToCall.forEach(([label, url]) => {
                         const responseTimer = Date.now();
@@ -136,6 +155,8 @@ client.once(Events.ClientReady, async readyClient => {
     } else {
         console.log('Guild not found!');
     }
+
+
 });
 
 // Log in to Discord with your client's token
