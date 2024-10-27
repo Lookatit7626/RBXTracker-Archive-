@@ -57,7 +57,7 @@ client.on(Events.MessageCreate, async (message) => {
     if (message.author.bot) return; // Ignore bot messages
 
     // Command to toggle the bot state
-    if (allowedUserIds.includes(message.author.id)) {
+    if (allowedUserIds.includes(message.author.id) && isActive) {
         if (message.content === '!kill') {
             isActive = false; // Turn off the bot
             message.channel.send('Bot has been turned off.'); 
