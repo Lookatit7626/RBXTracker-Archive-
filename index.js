@@ -59,7 +59,7 @@ client.once(Events.ClientReady, async readyClient => {
                             const responseTime = Date.now() - responseTimer;
 
                             if (AllowedReturnRequest.includes(response.statusCode)) {
-								if (GreenCode.indexOf(response.statusCode) >= 0) {} else {
+								if (GreenCode.includes(response.statusCode)) {} else {
 									const embed = new EmbedBuilder()
 										.setColor('#00ff00') // Green for up
 										.setTitle(`${label} is up!`)
@@ -90,7 +90,7 @@ client.once(Events.ClientReady, async readyClient => {
 									console.log(`[${label}] Request successful, Response ${response.statusCode}, Response time ${responseTime} ms`);
 								}
 							} else {
-								if (RedCode.indexOf(response.statusCode) >= 0) {} else {
+								if (RedCode.includes(response.statusCode)) {} else {
 									const embed = new EmbedBuilder()
 										.setColor('#ff0000') // Red for down
 										.setTitle(`${label} is down!`)
