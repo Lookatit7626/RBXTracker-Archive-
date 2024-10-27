@@ -78,35 +78,68 @@ client.once(Events.ClientReady, async readyClient => {
                             const responseTime = Date.now() - responseTimer;
 
                             if (AllowedReturnRequest.includes(response.statusCode)) {
-								if (GreenCode.includes(label)) {} else {
-									const embed = new EmbedBuilder()
-										.setColor('#00ff00') // Green for up
-										.setTitle(`${label} API is up!`)
-										.setURL(url)
-										.setAuthor({ name: 'Status Bot' })
-										.addFields(
-											{ name: 'Response Code', value: "200", inline: true },
-											{ name: 'Response Time', value: `${responseTime} ms`, inline: true }
-										)
-										.setFooter({ text: 'Status Check' })
-										.setTimestamp();
+								if (responseTime > 1000) {
+									if (YellowCode.includes(label)) {} else {
+										const embed = new EmbedBuilder()
+											.setColor('#00ff00') // Green for up
+											.setTitle(`${label} API is downgrading!`)
+											.setURL(url)
+											.setAuthor({ name: 'Status Bot' })
+											.addFields(
+												{ name: 'Response Code', value: "200", inline: true },
+												{ name: 'Response Time', value: `${responseTime} ms`, inline: true }
+											)
+											.setFooter({ text: 'Status Check' })
+											.setTimestamp();
 
-									channel.send({ embeds: [embed] });
-									
-									// Manage status codes
-									GreenCode.push(label);
+										channel.send({ embeds: [embed] });
+										
+										// Manage status codes
+										YellowCode.push(label);
 
-									const index = RedCode.indexOf(label);
+										const index = RedCode.indexOf(label);
 
-									if (index !== -1) {
-										RedCode.splice(index, 1); // Remove 1 element at the found index
+										if (index !== -1) {
+											RedCode.splice(index, 1); // Remove 1 element at the found index
+										}
+										const index2 = GreenCode.indexOf(label);
+
+										if (index2 !== -1) {
+											GreenCode.splice(index2, 1); // Remove 1 element at the found index
+										}
+										console.log(`[${label}] Request successful, Response ${response.statusCode}, Response time ${responseTime} ms`);
 									}
-									const index2 = YellowCode.indexOf(label);
+								} else {
+									if (GreenCode.includes(label)) {} else {
+										const embed = new EmbedBuilder()
+											.setColor('#00ff00') // Green for up
+											.setTitle(`${label} API is up!`)
+											.setURL(url)
+											.setAuthor({ name: 'Status Bot' })
+											.addFields(
+												{ name: 'Response Code', value: "200", inline: true },
+												{ name: 'Response Time', value: `${responseTime} ms`, inline: true }
+											)
+											.setFooter({ text: 'Status Check' })
+											.setTimestamp();
 
-									if (index2 !== -1) {
-										YellowCode.splice(index2, 1); // Remove 1 element at the found index
+										channel.send({ embeds: [embed] });
+										
+										// Manage status codes
+										GreenCode.push(label);
+
+										const index = RedCode.indexOf(label);
+
+										if (index !== -1) {
+											RedCode.splice(index, 1); // Remove 1 element at the found index
+										}
+										const index2 = YellowCode.indexOf(label);
+
+										if (index2 !== -1) {
+											YellowCode.splice(index2, 1); // Remove 1 element at the found index
+										}
+										console.log(`[${label}] Request successful, Response ${response.statusCode}, Response time ${responseTime} ms`);
 									}
-									console.log(`[${label}] Request successful, Response ${response.statusCode}, Response time ${responseTime} ms`);
 								}
 							} else {
 								if (RedCode.includes(label)) {} else {
