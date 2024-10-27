@@ -65,8 +65,8 @@ client.once(Events.ClientReady, readyClient => {
 
 
 			setInterval(() => {
-				if (Array.isArray(HTTPS) && HTTPS.length > 0) {
-					HTTPS.forEach(([label, url]) => {
+				if (Array.isArray(RobloxAPIListToCall) && RobloxAPIListToCall.length > 0) {
+					RobloxAPIListToCall.forEach(([label, url]) => {
 						const responseTimer = Date.now();
 						https.get(url, (response) => {
 							if (AllowedReturnRequest.indexOf(response.statusCode) >= 0) {
