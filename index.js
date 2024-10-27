@@ -36,6 +36,7 @@ const RobloxAPIListToCall = [
     ["Trade", "https://trades.roblox.com/v1/trades/metadata"],
     ["Billing", "https://billing.roblox.com/v1/metadata"],
     ["Client Settings (CDN)", "https://clientsettingscdn.roblox.com/v1/"],
+    ["Datastore","https://apis.roblox.com/datastores/v1/universes/4924922222/standard-datastores"],
 ];
 
 const AllowedReturnRequest = [200, 404, 429, 401, 405];
