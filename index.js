@@ -6,6 +6,7 @@ const https = require('https');
 const port = 8080;
 
 app.get('/', (req, res) => {
+	res.render('index', { title: 'RBXSTAT9990' }); 
 	res.send('Back-end')
 })
   
@@ -68,7 +69,7 @@ client.on(Events.MessageCreate, message => {
 client.once(Events.ClientReady, async readyClient => {
     console.log(`Ready! Logged in as: ${readyClient.user.tag}`);
     const GUILD_ID = '1158555888609677373';
-    const CHANNEL_ID = '1299919461536632903';
+    const CHANNEL_ID = '1299920887344009268';
 
     // Find the channel and send a message
     const guild = client.guilds.cache.get(GUILD_ID);
