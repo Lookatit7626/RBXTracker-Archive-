@@ -81,19 +81,19 @@ client.once(Events.ClientReady, async readyClient => {
                 if (isActive) {
                     try {
                         const requests = RobloxAPIListToCall.map(([label, url]) => 
-                            new Promise((resolve) => {
-                                const responseTimer = Date.now();
-                                https.get(url, (response) => {
-                                    const responseTime = Date.now() - responseTimer;
-                                    resolve({ label, statusCode: response.statusCode, responseTime });
-                                }).on('error', (error) => {
-                                    resolve({ label, statusCode: null, error: error.message });
-                                });
-                            })
-                        );
+							new Promise((resolve) => {
+								const responseTimer = Date.now();
+								https.get(url, (response) => {
+									const responseTime = Date.now() - responseTimer;
+									resolve({ label, url, statusCode: response.statusCode, responseTime });
+								}).on('error', (error) => {
+									resolve({ label, url, statusCode: null, error: error.message });
+								});
+							})
+						);						
 
                         const results = await Promise.all(requests);
-                        results.forEach(({ label, statusCode, responseTime, error }) => {
+                        results.forEach(({url, label, statusCode, responseTime, error }) => {
                             if (statusCode !== null) {
                                 if (AllowedReturnRequest.includes(statusCode)) {
                                     if (responseTime > 2000) {
