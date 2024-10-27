@@ -56,7 +56,7 @@ client.on(Events.MessageCreate, message => {
 client.once(Events.ClientReady, async readyClient => {
     console.log(`Ready! Logged in as: ${readyClient.user.tag}`);
     const GUILD_ID = '1158555888609677373';
-    const CHANNEL_ID = '1299913259457187852';
+    const CHANNEL_ID = '1299918571962372116';
 
     // Find the channel and send a message
     const guild = client.guilds.cache.get(GUILD_ID);
