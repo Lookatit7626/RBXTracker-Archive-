@@ -112,6 +112,17 @@ client.once(Events.ClientReady, async readyClient => {
 
                                             channel.send({ embeds: [embed] });
                                             YellowCode.push(label);
+
+											const index = RedCode.indexOf(label);
+				
+											if (index !== -1) {
+												RedCode.splice(index, 1); // Remove 1 element at the found index
+											}
+											const index2 = GreenCode.indexOf(label);
+				
+											if (index2 !== -1) {
+												GreenCode.splice(index2, 1); // Remove 1 element at the found index
+											}
                                         }
                                     } else {
                                         if (!GreenCode.includes(label)) {
@@ -129,10 +140,38 @@ client.once(Events.ClientReady, async readyClient => {
 
                                             channel.send({ embeds: [embed] });
                                             GreenCode.push(label);
+				
+											const index = RedCode.indexOf(label);
+				
+											if (index !== -1) {
+												RedCode.splice(index, 1); // Remove 1 element at the found index
+											}
+											const index2 = YellowCode.indexOf(label);
+				
+											if (index2 !== -1) {
+												YellowCode.splice(index2, 1); // Remove 1 element at the found index
+											}
                                         }
                                     }
                                 } else {
                                     if (!RedCode.includes(label)) {
+										let CauseOfIssue = "Unknown"
+										switch(statusCode) {
+											case 500:
+												CauseOfIssue = "Internal server error"
+											  break;
+											case 503:
+												CauseOfIssue = "Service unavailable"
+												break
+											case 502:
+												CauseOfIssue = "Bad Gateway"
+											  break;
+											case 507:
+												CauseOfIssue = "Insuffient Storage"
+												break
+											default:
+											  
+										}
                                         const embed = new EmbedBuilder()
                                             .setColor('#ff0000')
                                             .setTitle(`${label} API is down!`)
@@ -141,13 +180,25 @@ client.once(Events.ClientReady, async readyClient => {
                                             .addFields(
                                                 { name: 'Response Code', value: statusCode.toString(), inline: true },
                                                 { name: 'Response Time', value: `${responseTime} ms`, inline: true },
-                                                { name: 'Response : ', value: 'Error occurred', inline: true }
+                                                { name: 'Response : ', value: CauseOfIssue, inline: true }
                                             )
                                             .setFooter({ text: 'Status Check' })
                                             .setTimestamp();
 
                                         channel.send({ embeds: [embed] });
                                         RedCode.push(label);
+
+										const index = GreenCode.indexOf(label);
+				
+										if (index !== -1) {
+											GreenCode.splice(index, 1); // Remove 1 element at the found index
+										}
+
+										const index2 = YellowCode.indexOf(label);
+				
+										if (index2 !== -1) {
+											YellowCode.splice(index2, 1); // Remove 1 element at the found index
+										}
                                     }
                                 }
                             } else {
