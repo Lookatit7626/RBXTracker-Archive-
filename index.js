@@ -1,18 +1,16 @@
-// Require the necessary discord.js classes
-const express = require('express')
-const app = express()
+const express = require('express');
+const app = express();
 const { Client, Events, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const https = require('https');
 const port = 8080;
 
 app.get('/', (req, res) => {
-	res.send('Back-end')
-})
-  
-app.listen(port, () => {
-	console.log(`PORT :  ${port}`)
-})
+    res.send('Back-end');
+});
 
+app.listen(port, () => {
+    console.log(`PORT : ${port}`);
+});
 
 const RobloxAPIListToCall = [
     ["Games", "https://games.roblox.com/v2/users/1/games"],
@@ -36,6 +34,8 @@ const RobloxAPIListToCall = [
     ["Game Internationalization", "https://gameinternationalization.roblox.com/v2/supported-languages/games/4924922222"],
     ["Presence (User)", "https://presence.roblox.com/v1/presence/users"],
     ["Trade", "https://trades.roblox.com/v1/trades/metadata"],
+    ["Billing", "https://billing.roblox.com/v1/metadata"],
+    ["Client Settings (CDN)", "https://clientsettingscdn.roblox.com/v1/"],
 ];
 
 const AllowedReturnRequest = [200, 404, 429, 401, 405];
@@ -51,158 +51,24 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBit
 
 const allowedUserIds = ['874574233513111573', '743455903797215293'];
 let isActive = true;
-let intervalId;
 
 client.on(Events.MessageCreate, message => {
     if (message.author.bot) return; // Ignore bot messages
 
     // Command to toggle the bot state
-	if (allowedUserIds.includes(message.author.id)) {
-		if (message.content === '!kill') {
-			isActive = false; // Turn off the bot
-			message.channel.send('Bot has been turned off.'); 
-		}
-	}
+    if (allowedUserIds.includes(message.author.id)) {
+        if (message.content === '!kill') {
+            isActive = false; // Turn off the bot
+            message.channel.send('Bot has been turned off.'); 
+        }
+    }
 });
-
-async function Loop() {
-	if (Array.isArray(RobloxAPIListToCall) && RobloxAPIListToCall.length > 0) {
-		RobloxAPIListToCall.forEach(([label, url]) => {
-			const responseTimer = Date.now();
-			https.get(url, (response) => {
-				const responseTime = Date.now() - responseTimer;
-
-				if (AllowedReturnRequest.includes(response.statusCode)) {
-					if (responseTime > 2000) {
-						if (YellowCode.includes(label)) {} else {
-							const embed = new EmbedBuilder()
-								.setColor('#f6ff00') // Yellow for lagging
-								.setTitle(`${label} API is downgrading!`)
-								.setURL(url)
-								.setAuthor({ name: 'Status Bot' })
-								.addFields(
-									{ name: 'Response Code', value: "200", inline: true },
-									{ name: 'Response Time', value: `${responseTime} ms`, inline: true }
-								)
-								.setFooter({ text: 'Status Check' })
-								.setTimestamp();
-
-							channel.send({ embeds: [embed] });
-							
-							// Manage status codes
-							YellowCode.push(label);
-
-							const index = RedCode.indexOf(label);
-
-							if (index !== -1) {
-								RedCode.splice(index, 1); // Remove 1 element at the found index
-							}
-							const index2 = GreenCode.indexOf(label);
-
-							if (index2 !== -1) {
-								GreenCode.splice(index2, 1); // Remove 1 element at the found index
-							}
-							console.log(`[${label}] Request successful, Response ${response.statusCode}, Response time ${responseTime} ms`);
-						}
-					} else {
-						if (GreenCode.includes(label)) {} else {
-							const embed = new EmbedBuilder()
-								.setColor('#00ff00') // Green for up
-								.setTitle(`${label} API is up!`)
-								.setURL(url)
-								.setAuthor({ name: 'Status Bot' })
-								.addFields(
-									{ name: 'Response Code', value: "200", inline: true },
-									{ name: 'Response Time', value: `${responseTime} ms`, inline: true }
-								)
-								.setFooter({ text: 'Status Check' })
-								.setTimestamp();
-
-							channel.send({ embeds: [embed] });
-							
-							// Manage status codes
-							GreenCode.push(label);
-
-							const index = RedCode.indexOf(label);
-
-							if (index !== -1) {
-								RedCode.splice(index, 1); // Remove 1 element at the found index
-							}
-							const index2 = YellowCode.indexOf(label);
-
-							if (index2 !== -1) {
-								YellowCode.splice(index2, 1); // Remove 1 element at the found index
-							}
-							console.log(`[${label}] Request successful, Response ${response.statusCode}, Response time ${responseTime} ms`);
-						}
-					}
-				} else {
-					if (RedCode.includes(label)) {} else {
-
-						let CauseOfIssue = "Unknown"
-						switch(response.statusCode) {
-							case 500:
-								CauseOfIssue = "Internal server error"
-							  break;
-							case 503:
-								CauseOfIssue = "Service unavailable"
-								break
-							case 502:
-								CauseOfIssue = "Bad Gateway"
-							  break;
-							case 507:
-								CauseOfIssue = "Insuffient Storage"
-								break
-							default:
-							  
-						}
-						const embed = new EmbedBuilder()
-							.setColor('#ff0000') // Red for down
-							.setTitle(`${label} API is down!`)
-							.setURL(url)
-							.setAuthor({ name: 'Status Bot' })
-							.addFields(
-								{ name: 'Response Code', value: response.statusCode.toString(), inline: true },
-								{ name: 'Response Time', value: `${responseTime} ms`, inline: true },
-								{ name: 'Response : ', value: `${CauseOfIssue}`, inline: true }
-							)
-							.setFooter({ text: 'Status Check' })
-							.setTimestamp();
-
-						channel.send({ embeds: [embed] });
-						
-						// Manage status codes
-						RedCode.push(label);
-
-						const index = GreenCode.indexOf(label);
-
-						if (index !== -1) {
-							GreenCode.splice(index, 1); // Remove 1 element at the found index
-						}
-							const index2 = YellowCode.indexOf(label);
-
-						if (index2 !== -1) {
-							YellowCode.splice(index2, 1); // Remove 1 element at the found index
-						}
-
-						console.log(`[${label}] Request unsuccessful, Response ${response.statusCode}, Response time ${responseTime} ms`);
-					}
-				}
-			}).on('error', (error) => {
-				console.error(`${label} Error: ${error.message}`);
-			});
-		});
-	} else {
-		console.error('Roblox API list is not defined or empty.');
-	}
-}
 
 client.once(Events.ClientReady, async readyClient => {
     console.log(`Ready! Logged in as: ${readyClient.user.tag}`);
     const GUILD_ID = '1158555888609677373';
-    const CHANNEL_ID = '1299921369324064768';
+    const CHANNEL_ID = '1300078672807596112';
 
-    // Find the channel and send a message
     const guild = client.guilds.cache.get(GUILD_ID);
     if (guild) {
         const channel = guild.channels.cache.get(CHANNEL_ID);
@@ -211,13 +77,87 @@ client.once(Events.ClientReady, async readyClient => {
                 .then(() => console.log('Message sent!'))
                 .catch(console.error);
 
-			
+            setInterval(async () => {
+                if (isActive) {
+                    try {
+                        const requests = RobloxAPIListToCall.map(([label, url]) => 
+                            new Promise((resolve) => {
+                                const responseTimer = Date.now();
+                                https.get(url, (response) => {
+                                    const responseTime = Date.now() - responseTimer;
+                                    resolve({ label, statusCode: response.statusCode, responseTime });
+                                }).on('error', (error) => {
+                                    resolve({ label, statusCode: null, error: error.message });
+                                });
+                            })
+                        );
 
-			intervalId = setInterval(() => {
-				if (isActive === false) {
-					Loop()
-				}
-                
+                        const results = await Promise.all(requests);
+                        results.forEach(({ label, statusCode, responseTime, error }) => {
+                            if (statusCode !== null) {
+                                if (AllowedReturnRequest.includes(statusCode)) {
+                                    if (responseTime > 2000) {
+                                        if (!YellowCode.includes(label)) {
+                                            const embed = new EmbedBuilder()
+                                                .setColor('#f6ff00')
+                                                .setTitle(`<@&1300079303240712233> ${label} API is downgrading!`)
+                                                .setURL(url)
+                                                .setAuthor({ name: 'Status Bot' })
+                                                .addFields(
+                                                    { name: 'Response Code', value: statusCode.toString(), inline: true },
+                                                    { name: 'Response Time', value: `${responseTime} ms`, inline: true }
+                                                )
+                                                .setFooter({ text: 'Status Check' })
+                                                .setTimestamp();
+
+                                            channel.send({ embeds: [embed] });
+                                            YellowCode.push(label);
+                                        }
+                                    } else {
+                                        if (!GreenCode.includes(label)) {
+                                            const embed = new EmbedBuilder()
+                                                .setColor('#00ff00')
+                                                .setTitle(`<@&1300079348379942922> ${label} API is up!`)
+                                                .setURL(url)
+                                                .setAuthor({ name: 'Status Bot' })
+                                                .addFields(
+                                                    { name: 'Response Code', value: statusCode.toString(), inline: true },
+                                                    { name: 'Response Time', value: `${responseTime} ms`, inline: true }
+                                                )
+                                                .setFooter({ text: 'Status Check' })
+                                                .setTimestamp();
+
+                                            channel.send({ embeds: [embed] });
+                                            GreenCode.push(label);
+                                        }
+                                    }
+                                } else {
+                                    if (!RedCode.includes(label)) {
+                                        const embed = new EmbedBuilder()
+                                            .setColor('#ff0000')
+                                            .setTitle(`<@&1300078712649285652> ${label} API is down!`)
+                                            .setURL(url)
+                                            .setAuthor({ name: 'Status Bot' })
+                                            .addFields(
+                                                { name: 'Response Code', value: statusCode.toString(), inline: true },
+                                                { name: 'Response Time', value: `${responseTime} ms`, inline: true },
+                                                { name: 'Response : ', value: 'Error occurred', inline: true }
+                                            )
+                                            .setFooter({ text: 'Status Check' })
+                                            .setTimestamp();
+
+                                        channel.send({ embeds: [embed] });
+                                        RedCode.push(label);
+                                    }
+                                }
+                            } else {
+                                console.error(`${label} Error: ${error}`);
+                            }
+                        });
+                    } catch (error) {
+                        console.error(`Error making requests: ${error}`);
+                    }
+                }
             }, 30000); // 30000 ms = 30 seconds
         } else {
             console.log('Channel not found!');
@@ -225,8 +165,6 @@ client.once(Events.ClientReady, async readyClient => {
     } else {
         console.log('Guild not found!');
     }
-
-
 });
 
 // Log in to Discord with your client's token
