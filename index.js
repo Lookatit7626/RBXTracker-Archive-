@@ -1,6 +1,18 @@
 // Require the necessary discord.js classes
+const express = require('express')
+const app = express()
 const { Client, Events, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const https = require('https');
+const port = 8080;
+
+app.get('/', (req, res) => {
+	res.send('Back-end')
+})
+  
+app.listen(port, () => {
+	console.log(`PORT :  ${port}`)
+})
+
 
 const RobloxAPIListToCall = [
     ["Games", "https://games.roblox.com/v2/users/1/games"],
@@ -56,7 +68,7 @@ client.on(Events.MessageCreate, message => {
 client.once(Events.ClientReady, async readyClient => {
     console.log(`Ready! Logged in as: ${readyClient.user.tag}`);
     const GUILD_ID = '1158555888609677373';
-    const CHANNEL_ID = '1299918571962372116';
+    const CHANNEL_ID = '1299919461536632903';
 
     // Find the channel and send a message
     const guild = client.guilds.cache.get(GUILD_ID);
