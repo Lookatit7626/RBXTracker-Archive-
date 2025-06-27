@@ -39,6 +39,7 @@ const RobloxAPIListToCall = [
     ["Datastore","https://apis.roblox.com/datastores/v1/universes/4924922222/standard-datastores"],
     ["Account Security","https://apis.roblox.com/account-security-service/v1/prompt-assignments?shouldReturnMetadata=true"],
     ["Private Message","https://privatemessages.roblox.com/v1/messages/unread/count"],
+    ["Develop API","https://develop.roblox.com/v2/places/120089507112361"],
 ];
 
 const AllowedReturnRequest = [200, 404, 429, 401, 405];
