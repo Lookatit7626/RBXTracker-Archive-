@@ -37,6 +37,8 @@ const RobloxAPIListToCall = [
     ["Billing", "https://billing.roblox.com/v1/metadata"],
     ["Client Settings (CDN)", "https://clientsettingscdn.roblox.com/v1/"],
     ["Datastore","https://apis.roblox.com/datastores/v1/universes/4924922222/standard-datastores"],
+    ["Account Security","https://apis.roblox.com/account-security-service/v1/prompt-assignments?shouldReturnMetadata=true"],
+    ["Private Message","https://privatemessages.roblox.com/v1/messages/unread/count"],
 ];
 
 const AllowedReturnRequest = [200, 404, 429, 401, 405];
